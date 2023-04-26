@@ -38,7 +38,7 @@ class Title(models.Model):
         blank=True,
     )
     name = models.CharField(max_length=256)
-    year = models.IntegerField(validators=validate_year)
+    year = models.IntegerField(validators=[validate_year])
     description = models.TextField(
         max_length=200,
         blank=True,
