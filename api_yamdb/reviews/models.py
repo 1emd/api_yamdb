@@ -45,7 +45,7 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField('Название', max_length=200)
     year = models.PositiveSmallIntegerField(
-        'Год выпуска',
+        'Год выхода',
         validators=[validate_year]
     )
     description = models.TextField('Описание')
@@ -111,7 +111,7 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Произведение'
     )
-    text = models.TextField('Отзыв')
+    text = models.TextField('Текст')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -119,7 +119,7 @@ class Review(models.Model):
         verbose_name='Автор'
     )
     score = models.PositiveSmallIntegerField(
-        'Оценка',
+        'Рейтинг',
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
@@ -153,12 +153,9 @@ class Comment(models.Model):
         related_name='comments',
         verbose_name='Пользователь'
     )
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ['-pub_date']
         verbose_name = 'Комментрий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return (self.text)[:15]
