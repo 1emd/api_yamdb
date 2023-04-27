@@ -24,8 +24,8 @@ def registration(request):
         subject='Регистрация YaMDB',
         message=f'Ваш код подтверждения: {confirmation_code}',
         from_email='from@example.com',
-        recipient_list=[email],  # Это поле "Кому" (можно указать список адресов)
-        fail_silently=False, # Сообщать об ошибках («молчать ли об ошибках?»)
+        recipient_list=[email],
+        fail_silently=False,
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
 
