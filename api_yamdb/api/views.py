@@ -3,7 +3,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -120,30 +119,28 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializers
-    pagination_class = PageNumberPagination
     permission_classes = (IsAuthorModeratorAdminOrReadOnly,
                           IsAuthenticatedOrReadOnly)
 
     def get_queryset(self):
         title = get_object_or_404(
             Title,
-            pk=self.kwargs['title_id']
+            pk=self.kwargs.get('title_id')
         )
         return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
             Title,
-            pk=self.kwargs['title_id']
+            pk=self.kwargs.get('title_id')
         )
         serializer.save(author=self.request.user, title=title)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializers
-    pagination_class = PageNumberPagination
     permission_classes = (IsAuthorModeratorAdminOrReadOnly,
                           IsAuthenticatedOrReadOnly)
 

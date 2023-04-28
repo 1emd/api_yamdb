@@ -9,7 +9,7 @@ class Category(models.Model):
     name = models.CharField('Название', max_length=200)
     slug = models.SlugField(
         'Идентификатор',
-        max_length=200,
+        max_length=50,
         unique=True
     )
 
@@ -26,7 +26,7 @@ class Genre(models.Model):
     name = models.CharField('Название', max_length=200)
     slug = models.SlugField(
         'Идентификатор',
-        max_length=200,
+        max_length=50,
         unique=True
     )
 

@@ -14,7 +14,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ReviewSerializers(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
-        default=serializers.CurrentUserDefault())
+    )
 
     class Meta:
         model = Review
