@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.core.validators import RegexValidator
+
 from reviews.models import Category, Genre, Title, Comment, Review
 from users.models import User
 
@@ -83,25 +85,34 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(r'^[\w.@+-]+$'),])
 
     class Meta:
         model = User
         fields = (
-            'id',
             'username',
             'email',
-            'role',
-            'bio',
             'first_name',
-            'last_name'
+            'last_name',
+            'bio',
+            'role'
         )
 
 
 class EmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField()
+    email = serializers.EmailField(required=True, max_length=254)
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(r'^[\w.@+-]+$'),])
 
 
 class TokenSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
+    username = serializers.CharField(
+        max_length=150,
+        validators=[
+            RegexValidator(r'^[\w.@+-]+$'),])
     confirmation_code = serializers.CharField(required=True)
