@@ -1,5 +1,6 @@
 from django_filters import CharFilter, NumberFilter
 from django_filters import FilterSet
+
 from reviews.models import Title
 
 
