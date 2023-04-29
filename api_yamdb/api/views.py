@@ -111,7 +111,28 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdmin,)
     pagination_class = PageNumberPagination
     filter_backends = [SearchFilter]
-    search_fields = ('user__username',)
+    search_fields = ('username',)
+
+    # метод для предотвращения PUT-запроса
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        user = self.get_object()
+        if request.user.is_admin:
+            serializer = self.get_serializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=user.role, partial=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'error': 'Вы не авторизованы для выполнения этого действия.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
     @action(
         methods=['patch', 'get'],
@@ -122,7 +143,7 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         user = request.user
-        if request.method == "GET":
+        if self.request.method == "GET":
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         if self.request.method == 'PATCH':
@@ -132,7 +153,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 partial=True
             )
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            serializer.save(role=user.role, partial=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 

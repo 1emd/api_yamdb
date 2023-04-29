@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from django.core.validators import RegexValidator
 
 from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.validators import validate_username
 from users.models import User
 
 
@@ -88,7 +90,10 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=150,
         validators=[
-            RegexValidator(r'^[\w.@+-]+$'),])
+            validate_username,
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
 
     class Meta:
         model = User
@@ -107,12 +112,12 @@ class EmailSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         validators=[
-            RegexValidator(r'^[\w.@+-]+$'),])
+            RegexValidator(r'^[\w.@+-]+$'), ])
 
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         validators=[
-            RegexValidator(r'^[\w.@+-]+$'),])
+            RegexValidator(r'^[\w.@+-]+$'), ])
     confirmation_code = serializers.CharField(required=True)
