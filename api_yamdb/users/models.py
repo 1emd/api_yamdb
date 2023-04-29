@@ -27,7 +27,8 @@ class User(AbstractUser):
         verbose_name='Роль',
         max_length=50,
         choices=ROLES,
-        null=True
+        null=True,
+        default=USER
     )
     bio = models.TextField(
         verbose_name='О себе',

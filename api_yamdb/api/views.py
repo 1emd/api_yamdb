@@ -3,6 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -62,8 +63,10 @@ def registration(request):
     serializer = EmailSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data.get('username')
+    if username == 'me':
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     email = serializer.validated_data.get('email')
-    user = get_object_or_404(User, email=email, username=username)
+    user, _created = User.objects.get_or_create(username=username, email=email)
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация YaMDB',
@@ -79,8 +82,8 @@ def registration(request):
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data.get('email')
-    user = get_object_or_404(User, email=email)
+    username = serializer.validated_data.get('username')
+    user = get_object_or_404(User, username=username)
     confirmation_code = serializer.validated_data.get('confirmation_code')
     if default_token_generator.check_token(user, confirmation_code):
         token = AccessToken.for_user(user)
@@ -92,9 +95,11 @@ def get_token(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    lookup_field = "username"
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
+    pagination_class = PageNumberPagination
     filter_backends = [SearchFilter]
     search_fields = ('user__username',)
 
@@ -106,8 +111,10 @@ class UserViewSet(viewsets.ModelViewSet):
         url_name='me'
     )
     def me(self, request):
-        user = self.request.user
-        serializer = self.get_serializer(user)
+        user = request.user
+        if request.method == "GET":
+            serializer = self.get_serializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         if self.request.method == 'PATCH':
             serializer = self.get_serializer(
                 user,
@@ -116,7 +123,8 @@ class UserViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(ModelViewSet):
