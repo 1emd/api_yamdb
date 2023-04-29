@@ -1,5 +1,5 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from reviews.validators import validate_year
 from users.models import User
@@ -14,7 +14,7 @@ class Category(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -31,7 +31,7 @@ class Genre(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -66,7 +66,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -97,7 +97,7 @@ class Genre_title(models.Model):
         verbose_name_plural = 'Жанры произведения'
         constraints = [
             models.UniqueConstraint(
-                fields=['title', 'genre'],
+                fields=('title', 'genre',),
                 name='unique_combination_gt'
             )
         ]
@@ -127,12 +127,12 @@ class Review(models.Model):
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
-                fields=['title', 'author'],
+                fields=('title', 'author',),
                 name='unique_combination_r'
             )
         ]
@@ -157,6 +157,6 @@ class Comment(models.Model):
         auto_now_add=True, db_index=True)
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Комментрий'
         verbose_name_plural = 'Комментарии'

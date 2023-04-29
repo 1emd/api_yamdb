@@ -1,11 +1,13 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from django.core.validators import RegexValidator
-
-from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.models import Category, Comment, Genre, Review, Title
 from reviews.validators import validate_username
 from users.models import User
+
+REVIEW_ALREADY_WRITTEN = 'Вы уже написали отзыв к этому произведению.'
+VALID_USERNAME_EMAIL_PATTERN = r'^[\w.@+-]+$'
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -25,15 +27,13 @@ class ReviewSerializers(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'score', 'pub_date')
 
     def validate(self, data):
-        if self.context['request'].method != 'POST':
+        if self.context.get('request').method != 'POST':
             return data
-        title = self.context['view'].kwargs.get('title_id')
-        author = self.context['request'].user
+        title = self.context.get('view').kwargs.get('title_id')
+        author = self.context.get('request').user
         if Review.objects.filter(
                 author=author, title=title).exists():
-            raise serializers.ValidationError(
-                'Вы уже написали отзыв к этому произведению.'
-            )
+            raise serializers.ValidationError(REVIEW_ALREADY_WRITTEN)
         return data
 
 
@@ -63,8 +63,8 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
-        )
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category')
         read_only_fields = ('__all__',)
 
 
@@ -98,13 +98,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role')
 
 
 class EmailSerializer(serializers.Serializer):
@@ -112,12 +107,12 @@ class EmailSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         validators=[
-            RegexValidator(r'^[\w.@+-]+$'), ])
+            RegexValidator(VALID_USERNAME_EMAIL_PATTERN), ])
 
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         max_length=150,
         validators=[
-            RegexValidator(r'^[\w.@+-]+$'), ])
+            RegexValidator(VALID_USERNAME_EMAIL_PATTERN), ])
     confirmation_code = serializers.CharField(required=True)

@@ -6,6 +6,8 @@ from django.core.management import BaseCommand
 from reviews.models import (Category, Comment, Genre, Genre_title, Review,
                             Title, User)
 
+SUCCESSFUL_UPLOAD = 'Данные успешно загружены.'
+
 DICT = {
     User: 'users.csv',
     Category: 'category.csv',
@@ -28,4 +30,4 @@ class Command(BaseCommand):
                 reader = csv.DictReader(csv_file)
                 model.objects.bulk_create(model(**data) for data in reader)
 
-        self.stdout.write(self.style.SUCCESS('Данные успешно загружены'))
+        self.stdout.write(self.style.SUCCESS(SUCCESSFUL_UPLOAD))
