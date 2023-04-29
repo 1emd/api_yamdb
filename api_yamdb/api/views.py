@@ -2,10 +2,10 @@ from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly)
+    IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.tokens import default_token_generator
@@ -59,14 +59,24 @@ class TitleViewSet(ModelViewSet):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def registration(request):
     serializer = EmailSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    email = serializer.validated_data.get('email')
     username = serializer.validated_data.get('username')
     if username == 'me':
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    email = serializer.validated_data.get('email')
-    user, _created = User.objects.get_or_create(username=username, email=email)
+    try:
+        user, created = User.objects.get_or_create(
+            email=email,
+            username=username
+        )
+    except Exception as error:
+        return Response(
+            f'Произошла ошибка ->{error}<-',
+            status=status.HTTP_400_BAD_REQUEST
+        )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация YaMDB',
