@@ -6,13 +6,17 @@ from users.models import User
 
 MIN_VALUE = 1
 MAX_VALUE = 10
+TEXT_LIMIT = 15
+MAX_LENGTH_NAME = 200
+MAX_LENGTH_SLUG = 50
+MAX_LENGTH_DESCRIPTION = 200
 
 
 class Category(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=MAX_LENGTH_NAME)
     slug = models.SlugField(
         'Идентификатор',
-        max_length=50,
+        max_length=MAX_LENGTH_SLUG,
         unique=True
     )
 
@@ -26,10 +30,10 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=MAX_LENGTH_NAME)
     slug = models.SlugField(
         'Идентификатор',
-        max_length=50,
+        max_length=MAX_LENGTH_SLUG,
         unique=True
     )
 
@@ -43,7 +47,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=MAX_LENGTH_NAME)
     year = models.PositiveSmallIntegerField(
         'Год выхода',
         validators=[validate_year],
@@ -51,7 +55,7 @@ class Title(models.Model):
     )
     description = models.TextField(
         'Описание',
-        max_length=200,
+        max_length=MAX_LENGTH_DESCRIPTION,
         blank=True,
         null=True,
     )
@@ -143,7 +147,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_LIMIT]
 
 
 class Comment(models.Model):
@@ -170,4 +174,4 @@ class Comment(models.Model):
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return self.text
+        return self.text[:TEXT_LIMIT]

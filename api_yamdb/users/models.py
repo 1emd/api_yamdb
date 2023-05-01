@@ -1,6 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+MAX_LENGTH_USERNAME = 150
+MAX_LENGTH_EMAIL = 254
+MAX_LENGTH_ROLE = 50
+MAX_LENGTH_NAME = 150
+
 
 class User(AbstractUser):
     USER = 'user'
@@ -14,18 +19,18 @@ class User(AbstractUser):
 
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         null=True,
         unique=True
     )
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
-        max_length=254,
+        max_length=MAX_LENGTH_EMAIL,
         unique=True
     )
     role = models.CharField(
         verbose_name='Роль',
-        max_length=50,
+        max_length=MAX_LENGTH_ROLE,
         choices=ROLES,
         null=True,
         default=USER
@@ -35,8 +40,8 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
-    first_name = models.CharField(max_length=150, null=True)
-    last_name = models.CharField(max_length=150, null=True)
+    first_name = models.CharField(max_length=MAX_LENGTH_NAME, null=True)
+    last_name = models.CharField(max_length=MAX_LENGTH_NAME, null=True)
     is_verified = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'

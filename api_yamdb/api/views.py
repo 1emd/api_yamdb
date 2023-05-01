@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -22,14 +23,13 @@ from api.serializers import (CategorySerializer, CommentSerializers,
                              ReviewSerializers, TitleCreateUpdateSerializer,
                              TitleSerializer, TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
-from api_yamdb.settings import DOMAIN_NAME
 from users.models import User
 
 UNAUTHORIZED_ACTION = 'Вы не авторизованы для выполнения этого действия.'
 ERROR_MESSAGE = 'Произошла ошибка ->{error}<-.'
 REGISTRATION_TITLE = 'Регистрация YaMDB'
 CONFIRMATION_MESSAGE = 'Ваш код подтверждения: {confirmation_code}'
-EMAIL_SENDER = f'from@{DOMAIN_NAME}'
+EMAIL_SENDER = f'from@{settings.DOMAIN_NAME}'
 
 
 class CategoryViewSet(CreateListDeleteViewSet):
