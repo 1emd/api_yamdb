@@ -4,6 +4,9 @@ from django.db import models
 from reviews.validators import validate_year
 from users.models import User
 
+MIN_VALUE = 1
+MAX_VALUE = 10
+
 
 class Category(models.Model):
     name = models.CharField('Название', max_length=200)
@@ -43,7 +46,8 @@ class Title(models.Model):
     name = models.CharField('Название', max_length=200)
     year = models.PositiveSmallIntegerField(
         'Год выхода',
-        validators=[validate_year]
+        validators=[validate_year],
+        db_index=True,
     )
     description = models.TextField(
         'Описание',
@@ -93,6 +97,7 @@ class Genre_title(models.Model):
     )
 
     class Meta:
+        ordering = ('title',)
         verbose_name = 'Жанр произведения'
         verbose_name_plural = 'Жанры произведения'
         constraints = [
@@ -122,7 +127,7 @@ class Review(models.Model):
     )
     score = models.PositiveSmallIntegerField(
         'Рейтинг',
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE)]
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
@@ -136,6 +141,9 @@ class Review(models.Model):
                 name='unique_combination_r'
             )
         ]
+
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):
@@ -160,3 +168,6 @@ class Comment(models.Model):
         ordering = ('-pub_date',)
         verbose_name = 'Комментрий'
         verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return self.text

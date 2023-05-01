@@ -22,13 +22,14 @@ from api.serializers import (CategorySerializer, CommentSerializers,
                              ReviewSerializers, TitleCreateUpdateSerializer,
                              TitleSerializer, TokenSerializer, UserSerializer)
 from reviews.models import Category, Genre, Review, Title
+from api_yamdb.settings import DOMAIN_NAME
 from users.models import User
 
 UNAUTHORIZED_ACTION = 'Вы не авторизованы для выполнения этого действия.'
 ERROR_MESSAGE = 'Произошла ошибка ->{error}<-.'
 REGISTRATION_TITLE = 'Регистрация YaMDB'
 CONFIRMATION_MESSAGE = 'Ваш код подтверждения: {confirmation_code}'
-EMAIL_SENDER = 'from@example.com'
+EMAIL_SENDER = f'from@{DOMAIN_NAME}'
 
 
 class CategoryViewSet(CreateListDeleteViewSet):
@@ -119,20 +120,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         user = self.get_object()
-        if request.user.is_admin:
-            serializer = self.get_serializer(
-                user,
-                data=request.data,
-                partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save(role=user.role, partial=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {'error': UNAUTHORIZED_ACTION},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        self.check_object_permissions(request, user)
+        serializer = self.get_serializer(
+            user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save(role=user.role, partial=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         methods=['patch', 'get'],
@@ -168,7 +164,7 @@ def registration(request):
     if username == 'me':
         return Response(status=status.HTTP_400_BAD_REQUEST)
     try:
-        user, created = User.objects.get_or_create(
+        user, _ = User.objects.get_or_create(
             email=email,
             username=username
         )

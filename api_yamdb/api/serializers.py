@@ -8,6 +8,8 @@ from users.models import User
 
 REVIEW_ALREADY_WRITTEN = 'Вы уже написали отзыв к этому произведению.'
 VALID_USERNAME_EMAIL_PATTERN = r'^[\w.@+-]+$'
+MAX_LENGTH_USERNAME = 150
+MAX_LENGTH_EMAIL = 254
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -88,7 +90,7 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         validators=[
             validate_username,
             UniqueValidator(queryset=User.objects.all())
@@ -103,16 +105,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class EmailSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, max_length=254)
+    email = serializers.EmailField(required=True, max_length=MAX_LENGTH_EMAIL)
     username = serializers.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         validators=[
             RegexValidator(VALID_USERNAME_EMAIL_PATTERN), ])
 
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         validators=[
             RegexValidator(VALID_USERNAME_EMAIL_PATTERN), ])
     confirmation_code = serializers.CharField(required=True)

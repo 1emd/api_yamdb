@@ -18,8 +18,12 @@ v1_router.register(
     CommentViewSet, basename='comments')
 v1_router.register('users', UserViewSet, basename='users')
 
+v1_auth_urlpatterns = [
+    path('auth/signup/', registration, name='signup'),
+    path('auth/token/', get_token, name='token'),
+]
+
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/signup/', registration, name='signup'),
-    path('v1/auth/token/', get_token, name='token'),
+    path('v1/', include(v1_auth_urlpatterns)),
 ]
